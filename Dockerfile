@@ -1,7 +1,11 @@
-FROM alpine:3.8
+FROM golang:latest
+RUN apt install -y ca-certificates tzdata && rm -Rf /var/cache/apt/*
 
-RUN apk add -U ca-certificates tzdata mailcap && rm -Rf /var/cache/apk/*
-COPY selenoid /usr/bin
+RUN mkdir /app
+ADD . /app/
+WORKDIR /app
+RUN go build -o selenoid -tags='s3'
+RUN cp selenoid /usr/bin
 
 EXPOSE 4444
 ENTRYPOINT ["/usr/bin/selenoid", "-listen", ":4444", "-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video/"]
